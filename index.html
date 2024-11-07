@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشغيل أكواد HTML - Ahmed Wagdy</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.css">
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #f4f4f9;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #2b2b2b;
+            color: #f1f1f1;
+        }
+        .container {
+            margin-top: 50px;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            max-width: 900px;
+            margin: auto;
+        }
+        .dark-mode .container {
+            background-color: #3a3a3a;
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 2px solid #007bff;
+            padding: 10px;
+            height: 200px;
+            font-family: 'Courier New', monospace;
+        }
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px 0;
+        }
+        .social-icons a {
+            color: #007bff;
+            margin: 0 5px;
+            transition: color 0.3s;
+        }
+        .social-icons a:hover {
+            color: #0056b3;
+        }
+        .toggle-mode {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            cursor: pointer;
+            font-size: 24px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s;
+        }
+        .toggle-mode:hover {
+            transform: scale(1.1);
+        }
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: none;
+        }
+        .support-message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .music-button {
+            margin-top: 15px;
+            padding: 12px 25px;
+        }
+        #telegram-alert {
+            background-color: #d1ecf1;
+            border-color: #bee5eb;
+            color: #0c5460;
+            display: none;
+        }
+        .palestine-support {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .palestine-support img {
+            width: 100px; /* حجم العلم */
+            height: auto;
+        }
+        .palestine-support h4 {
+            margin-top: 10px;
+            font-size: 24px; /* حجم الخط */
+            font-weight: bold; /* جعل الخط عريض */
+            color: #dc3545; /* لون جاذب */
+        }
+        .palestine-support p {
+            font-size: 18px;
+            color: #6c757d; /* لون رمادي جذاب */
+        }
+        /* تحسين شكل الشريط العلوي */
+        .navbar {
+            margin-bottom: 20px;
+            background-color: #007bff;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.3s;
+        }
+        .navbar a {
+            color: white;
+            margin: 0 15px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .navbar a:hover {
+            text-decoration: underline;
+            color: #d1ecf1;
+        }
+        .output {
+            margin-top: 20px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            height: 300px;
+            overflow: auto;
+            position: relative;
+            display: none; /* إخفاء المربع في البداية */
+        }
+        .output iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="alert alert-info alert-dismissible fade show" role="alert" id="telegram-alert">
+        اشترك في قناتنا على تيليجرام لكل جديد! <a href="https://t.me/ahmedwagdy00" class="btn btn-link">اذهب إلى القناة</a>
+        <button type="button" class="btn-close" onclick="closeAlert()"></button>
+    </div>
+
+    <nav class="navbar">
+        <a href="#output">المعاينة</a>
+        <a href="#support">دعم القضية</a>
+        <a href="#music">الموسيقى</a>
+    </nav>
+
+    <div class="container">
+        <h1 class="text-center">موقع تجربة أكواد HTML</h1>
+        <form method="post" id="editor" onsubmit="return runCode();">
+            <textarea id="code-editor" name="code" placeholder="اكتب كود HTML هنا..." rows="10"></textarea>
+            <button type="submit" class="btn btn-primary">تشغيل الكود</button>
+            <button type="button" onclick="downloadCode()" class="btn btn-secondary">تنزيل الكود كملف</button>
+        </form>
+        
+        <h2 class="text-center" id="preview-title" style="display: none;">المعاينة:</h2> <!-- عنوان المعاينة -->
+        <div class="output" id="output">
+            <iframe id="preview-frame"></iframe>
+        </div>
+        
+        <div class="social-share mt-4">
+            <h5>شارك الكود الخاص بك:</h5>
+            <button class="btn btn-outline-primary" onclick="shareOnTelegram()">تيليجرام</button>
+            <button class="btn btn-outline-success" onclick="shareOnFile()">مشاركة كملف</button>
+        </div>
+
+        
+        <div class="palestine-support" id="support">
+            <img src="https://flagcdn.com/w320/ps.png" alt="علم فلسطين">
+            <h4>ادعم القضية!</h4>
+            <p>تضامنوا مع إخواننا وأخواتنا في فلسطين، دعمكم مهم.</p>
+        </div>
+
+
+        <audio id="background-music" src="ahmed.mp3" loop></audio> <!-- تأكد من أن ahmed.mp3 في نفس المسار -->
+        
+        
+        <button class="music-button btn btn-danger" id="music" onclick="toggleMusic()">تشغيل/إيقاف الموسيقى </button>
+    </div>
+    
+    <footer>
+        <p>تم برمجته بواسطة : <strong> Ahmed Wagdy </strong></p>
+        <div class="social-icons">
+            <a href="https://www.facebook.com/ahmed.wagdy.9028194"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://www.tiktok.com/@ahmedwagdy_1?_t=8r8TkAPwpiR&_r=1"><i class="fab fa-tiktok"></i></a>
+            <a href="https://www.instagram.com/a7.w05/"><i class="fab fa-instagram"></i></a>
+            <a href="https://t.me/ahmedwagdy00"><i class="fab fa-telegram"></i></a>
+        </div>
+    </footer>
+
+    <!-- زر تبديل وضع الليل والنهار -->
+    <button class="toggle-mode" onclick="toggleNightMode()">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.5/codemirror.min.js"></script>
+    <script>
+        // تغيير وضع الليل والنهار
+        function toggleNightMode() {
+            const body = document.body;
+            body.classList.toggle("dark-mode");
+        }
+
+        // تشغيل/إيقاف الموسيقى
+        function toggleMusic() {
+            const music = document.getElementById("background-music");
+            if (music.paused) {
+                music.play();
+            } else {
+                music.pause();
+            }
+        }
+
+        // تشغيل الكود
+        function runCode() {
+            const code = document.getElementById("code-editor").value;
+            const frame = document.getElementById("preview-frame");
+            const previewTitle = document.getElementById("preview-title");
+            previewTitle.style.display = "block"; // إظهار عنوان المعاينة
+            frame.srcdoc = code; // تحديث محتوى الإطار
+            document.getElementById("output").style.display = "block"; // إظهار المربع
+            return false; // منع إعادة تحميل الصفحة
+        }
+
+
+        function closeAlert() {
+            document.getElementById("telegram-alert").style.display = "none";
+        }
+
+
+        function shareOnTelegram() {
+            const code = document.getElementById("code-editor").value;
+            const telegramUrl = `https://t.me/share/url?url=${encodeURIComponent(code)}`;
+            window.open(telegramUrl, '_blank');
+        }
+
+
+        function shareOnFile() {
+            const code = document.getElementById("code-editor").value;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'code.html'; // اسم الملف
+            link.click();
+        }
+
+
+        function downloadCode() {
+            const code = document.getElementById("code-editor").value;
+            const blob = new Blob([code], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'code.html'; // اسم الملف
+            link.click();
+        }
+
+        
+const supportMessage = document.createElement('div');
+supportMessage.innerHTML = `
+    <h4>فلسطين قضيتنا !</h4>
+    <p>
+        اللهُمَّ إنّي أستودعُك غزة واهلها وبيت المقدس وأهل القُدس وكُل فلسطين، 
+        اللهُمَّ كُن لهم عوناً، اللهم إنّا لا نملكُ لغزة إلّا الدُعاء، 
+        يارب لا تردّ لنا دعاء ولا تخيب لنا رجاء وأنت أرحم الراحمين. 
+        اللهُم رد إلينا فلسطين والمسجد الأقصى رداً جميلاً. 
+        اللهم أنصر ضعفهم فإنهم ليس لهم سِواكَ يا الله ..🤲💛
+    </p>`;
+supportMessage.classList.add('support-message');
+document.body.appendChild(supportMessage);
+$(document).ready(function() {
+            alert("مرحبًا بكم في موقع تشغيل أكواد HTML. نتمنى لكم تجربة ممتعة!");
+            $('#telegram-alert').fadeIn();
+        });
+    </script>
+</body>
+</html>
